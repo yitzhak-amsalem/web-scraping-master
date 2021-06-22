@@ -28,6 +28,8 @@ public class Bot {
             }
 
 
+
+
 //            for (Element element : mainArticles){
 //                Element container = element.parent().parent();
 //                String classValue = container.attr("class");

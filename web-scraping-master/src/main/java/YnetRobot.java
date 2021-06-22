@@ -39,12 +39,35 @@ public class YnetRobot extends BaseRobot {
                 String link = linkElement.attr("href");
                 if (i != mainArticles5.size()-1) {
                     if (link.contains("https://www.ynet.co.il/") && !link.equals(mainArticles5.get(i + 1).attr("href")) && scanLink(link) > 4) {
-                        System.out.println("Link: " + link);
-                        System.out.println("Article: " + linkElement.text());
-                        size++;
+                        Document ynetPage = Jsoup.connect(link).get();
+                        Elements mainTitle = ynetPage.getElementsByClass("mainTitle");
+                        Elements subTitle = ynetPage.getElementsByClass("subTitle");
+                        Elements textPage = ynetPage.getElementsByAttribute("data-text");
+                        System.out.println();
+                        System.out.println("-------------");
+                        System.out.println();
+                        System.out.println(mainTitle.text());
+                        System.out.println(subTitle.text());
+                        System.out.println();
+                        System.out.println("-------------");
+                        System.out.println();
+                        for (Element element : textPage) {
+                            System.out.println(element.text());
+                            System.out.println();
+                            System.out.println("-------------");
+                            System.out.println();
+                        }
+//                        System.out.println("Link: " + link);
+//                        System.out.println("Article: " + linkElement.text());
+//                        size++;
                     }
                 }
             }
+
+//            class = mainTitle
+//            class = subTitle
+//            class = text_editor_paragraph rtl
+//            key = data-text
 
 
 
