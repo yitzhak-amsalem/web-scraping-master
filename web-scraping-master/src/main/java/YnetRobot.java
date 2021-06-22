@@ -20,6 +20,7 @@ public class YnetRobot extends BaseRobot {
     @Override
     public Map<String, Integer> getWordsStatistics() {
         Map<String, Integer> wordsMap = new HashMap<>();
+        int size = 0;
         try {
             Document website = Jsoup.connect(getRootWebsiteUrl()).get();
 
@@ -30,38 +31,37 @@ public class YnetRobot extends BaseRobot {
 //            System.out.println("The link: " + link1);
 
 
-
+//            classALL19 = layoutContainer
+//            classB = tbl-feed-container tbl-feed-frame-NONE  render-late-effect
+//            classA = trc_related_container trc_spotlight_widget tbl-rtl tbl-feed-container tbl-feed-frame-NONE
             System.out.println("Found " + mainArticles5.size());
 
-            int size = 0;
+            StringBuilder allText = new StringBuilder();
             for (int i = 0; i < mainArticles5.size(); i++){
                 Element linkElement = mainArticles5.get(i);
                 String link = linkElement.attr("href");
+                if (link.contains("https://www.ynet.co.il/judaism/article/r1PEIlTsO#autoplay")){
+                }
                 if (i != mainArticles5.size()-1) {
                     if (link.contains("https://www.ynet.co.il/") && !link.equals(mainArticles5.get(i + 1).attr("href")) && scanLink(link) > 4) {
+//                        Thread.sleep(1000);
                         Document ynetPage = Jsoup.connect(link).get();
                         Elements mainTitle = ynetPage.getElementsByClass("mainTitle");
                         Elements subTitle = ynetPage.getElementsByClass("subTitle");
                         Elements textPage = ynetPage.getElementsByAttribute("data-text");
-                        System.out.println();
-                        System.out.println("-------------");
-                        System.out.println();
-                        System.out.println(mainTitle.text());
-                        System.out.println(subTitle.text());
-                        System.out.println();
-                        System.out.println("-------------");
-                        System.out.println();
+                        allText.append(mainTitle.text());
+                        allText.append(subTitle.text());
                         for (Element element : textPage) {
-                            System.out.println(element.text());
-                            System.out.println();
-                            System.out.println("-------------");
-                            System.out.println();
+                            allText.append(element.text());
+//                            System.out.println(element.text());
                         }
 //                        System.out.println("Link: " + link);
 //                        System.out.println("Article: " + linkElement.text());
-//                        size++;
+                        size++;
                     }
+
                 }
+
             }
 
 //            class = mainTitle
@@ -83,8 +83,7 @@ public class YnetRobot extends BaseRobot {
 //                }
 //            }
             System.out.println(size);
-
-
+            System.out.println(allText);
 
 
         } catch (IOException e) {
