@@ -23,25 +23,15 @@ public class YnetRobot extends BaseRobot {
         int size = 0;
         try {
             Document website = Jsoup.connect(getRootWebsiteUrl()).get();
-
             Elements allLinks = website.getElementsByAttribute("href");
 
-//            Element linkElement = mainArticles5.get(0);
-//            String link1 = linkElement.attr("href");
-//            System.out.println("The link: " + link1);
-
-
-//            classALL19 = layoutContainer
 //            classB = tbl-feed-container tbl-feed-frame-NONE  render-late-effect
 //            classA = trc_related_container trc_spotlight_widget tbl-rtl tbl-feed-container tbl-feed-frame-NONE
-//            System.out.println("Found " + mainArticles5.size());
 
             StringBuilder allText = new StringBuilder();
             for (int i = 0; i < allLinks.size(); i++){
                 Element linkElement = allLinks.get(i);
                 String link = linkElement.attr("href");
-                if (link.contains("https://www.ynet.co.il/judaism/article/r1PEIlTsO#autoplay")){
-                }
                 if (i != allLinks.size()-1) {
                     if (link.contains("https://www.ynet.co.il/") && !link.equals(allLinks.get(i + 1).attr("href")) && scanLink(link) > 4) {
                         Document ynetPage = Jsoup.connect(link).get();
@@ -103,11 +93,94 @@ public class YnetRobot extends BaseRobot {
 
     @Override
     public int countInArticlesTitles(String text) {
-        return 0;
+        int count = 0;
+        StringBuilder allTitlesText = new StringBuilder();
+        try {
+            Document website = Jsoup.connect(getRootWebsiteUrl()).get();
+            Elements allLinks = website.getElementsByAttribute("href");
+
+            for (int i = 0; i < allLinks.size(); i++){
+                Element linkElement = allLinks.get(i);
+                String link = linkElement.attr("href");
+                if (link.contains("https://www.ynet.co.il/judaism/article/r1PEIlTsO#autoplay")){
+                }
+                if (i != allLinks.size()-1) {
+                    if (link.contains("https://www.ynet.co.il/") && !link.equals(allLinks.get(i + 1).attr("href")) && scanLink(link) > 4) {
+                        Document ynetPage = Jsoup.connect(link).get();
+                        Elements mainTitle = ynetPage.getElementsByClass("mainTitle");
+                        Elements subTitle = ynetPage.getElementsByClass("subTitle");
+                        allTitlesText.append(mainTitle.text());
+                        allTitlesText.append(subTitle.text());
+                    }
+                }
+            }
+            System.out.println("all titles of Articles text length: " + allTitlesText.length());
+
+
+            String word = "";
+            for (int i = 0; i < allTitlesText.length(); i++){
+                char chekWord = allTitlesText.charAt(i);
+                if ((chekWord > 1487 && chekWord < 1515) || chekWord == 34 ||
+                        (chekWord >= '0' && chekWord <= '9') || (chekWord >= 'A' && chekWord <= 'Z') || (chekWord >= 'a' && chekWord <= 'z')){
+                    if (!(chekWord == 34)) {
+                        word += chekWord;
+                        if (word.contains(text)){
+                            count++;
+                            word = "";
+                        }
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return count;
     }
 
     @Override
     public String getLongestArticleTitle() {
-        return null;
+        String longestArticleTitle = "";
+        try {
+            Document website = Jsoup.connect(getRootWebsiteUrl()).get();
+            Elements allLinks = website.getElementsByAttribute("href");
+
+            int previousLength;
+            int currentLength = 0;
+            int mostChars = 0;
+            String linkOfLongestArticle = "";
+            for (int i = 0; i < allLinks.size(); i++){
+                StringBuilder allText = new StringBuilder();
+                Element linkElement = allLinks.get(i);
+                String link = linkElement.attr("href");
+                if (i != allLinks.size()-1) {
+                    if (link.contains("https://www.ynet.co.il/") && !link.equals(allLinks.get(i + 1).attr("href")) && scanLink(link) > 4) {
+                        Document ynetPage = Jsoup.connect(link).get();
+                        Elements textPage = ynetPage.getElementsByAttribute("data-text");
+                        for (Element element : textPage) {
+                            allText.append(element.text());
+                        }
+                        previousLength = currentLength;
+                        currentLength = allText.length();
+                        if (currentLength > previousLength){
+                            linkOfLongestArticle = link;
+                            mostChars = currentLength;
+                        }
+                    }
+                }
+            }
+            Document ynetPage = Jsoup.connect(linkOfLongestArticle).get();
+            Elements mainTitle = ynetPage.getElementsByClass("mainTitle");
+            longestArticleTitle = mainTitle.text();
+            System.out.println("The link of the long article: " + linkOfLongestArticle);
+            System.out.println("The number of chars of the long article: " + mostChars);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return longestArticleTitle;
     }
 }
