@@ -117,16 +117,16 @@ public class YnetRobot extends BaseRobot {
             System.out.println("all titles of Articles text length: " + allTitlesText.length());
 
 
-            String word = "";
+            StringBuilder word = new StringBuilder();
             for (int i = 0; i < allTitlesText.length(); i++){
                 char chekWord = allTitlesText.charAt(i);
                 if ((chekWord > 1487 && chekWord < 1515) || chekWord == 34 ||
                         (chekWord >= '0' && chekWord <= '9') || (chekWord >= 'A' && chekWord <= 'Z') || (chekWord >= 'a' && chekWord <= 'z')){
                     if (!(chekWord == 34)) {
-                        word += chekWord;
-                        if (word.contains(text)){
+                        word.append(chekWord);
+                        if (word.toString().contains(text)){
                             count++;
-                            word = "";
+                            word = new StringBuilder();
                         }
                     }
                 }
@@ -146,8 +146,8 @@ public class YnetRobot extends BaseRobot {
             Document website = Jsoup.connect(getRootWebsiteUrl()).get();
             Elements allLinks = website.getElementsByAttribute("href");
 
-            int previousLength;
-            int currentLength = 0;
+            int previousLength = 0;
+            int currentLength;
             int mostChars = 0;
             String linkOfLongestArticle = "";
             for (int i = 0; i < allLinks.size(); i++){
@@ -161,11 +161,11 @@ public class YnetRobot extends BaseRobot {
                         for (Element element : textPage) {
                             allText.append(element.text());
                         }
-                        previousLength = currentLength;
                         currentLength = allText.length();
-                        if (currentLength > previousLength){
+                        if (currentLength > previousLength) {
                             linkOfLongestArticle = link;
                             mostChars = currentLength;
+                            previousLength = currentLength;
                         }
                     }
                 }
