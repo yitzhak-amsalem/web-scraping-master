@@ -16,11 +16,9 @@ public class InnRobot extends BaseRobot {
     @Override
     public Map<String, Integer> getWordsStatistics() {
         Map<String, Integer> wordsMap = new HashMap<>();
-        int size = 0;
         try {
             Document website = Jsoup.connect(getRootWebsiteUrl()).get();
             Elements allLinks = website.getElementsByAttribute("href");
-            System.out.println("all links: " + allLinks.size());
 
             StringBuilder allText = new StringBuilder();
             for (int i = 0; i < allLinks.size(); i++){
@@ -28,9 +26,9 @@ public class InnRobot extends BaseRobot {
                 String preLink = "https://www.inn.co.il/";
                 String link = linkElement.attr("href");
                 String linkToScraping = preLink + link;
-                if (i != allLinks.size()-1) {
+                if (i != allLinks.size() - 1) {
                     if (!link.equals(allLinks.get(i + 1).attr("href"))
-                            && scanLink(link) == 2 && (link.contains("/news/")) ) {
+                            && scanLink(link) == Def.SLASH_PAGE_INN && (link.contains("/news/")) ) {
                         Document innPage = Jsoup.connect(linkToScraping).get();
                         Elements mainTitle = innPage.getElementsByTag("h1");
                         Elements subTitle = innPage.getElementsByTag("h2");
@@ -43,26 +41,24 @@ public class InnRobot extends BaseRobot {
                     }
                 }
             }
-            System.out.println(allText.length());
-
 
             String word = "";
             for (int i = 0; i<allText.length(); i++){
-                char chekWord = allText.charAt(i);
-                if ((chekWord > 1487 && chekWord < 1515) || chekWord == 34 ||
-                        (chekWord >= '0' && chekWord <= '9') || (chekWord >= 'A' && chekWord <= 'Z') || (chekWord >= 'a' && chekWord <= 'z')){
-                    if (!(chekWord == 34)) {
-                        word += chekWord;
+                char checkWord = allText.charAt(i);
+                if ((checkWord >= 'א' && checkWord <= 'ת') || checkWord == '"' ||
+                        (checkWord >= '0' && checkWord <= '9') || (checkWord >= 'A' && checkWord <= 'Z') || (checkWord >= 'a' && checkWord <= 'z')){
+                    if (!(checkWord == '"')) {
+                        word += checkWord;
                     }
                 }
                 else {
-                    if (word.length() != 0) {
+                    if (word.length() != Def.MIN_WORD) {
                         if (wordsMap.get(word) != null) {
-                            Integer value = wordsMap.get(word) + 1;
+                            Integer value = wordsMap.get(word) + Def.ONE_SHOW;
                             wordsMap.put(word, value);
                         }
                         else {
-                            wordsMap.put(word, 1);
+                            wordsMap.put(word, Def.ONE_SHOW);
                         }
                     }
                     word = "";
@@ -100,9 +96,9 @@ public class InnRobot extends BaseRobot {
                 String preLink = "https://www.inn.co.il/";
                 String link = linkElement.attr("href");
                 String linkToScraping = preLink + link;
-                if (i != allLinks.size()-1) {
+                if (i != allLinks.size() - 1) {
                     if (!link.equals(allLinks.get(i + 1).attr("href"))
-                            && scanLink(link) == 2 && (link.contains("/news/")) ) {
+                            && scanLink(link) == Def.SLASH_PAGE_INN && (link.contains("/news/")) ) {
                         Document innPage = Jsoup.connect(linkToScraping).get();
                         Elements mainTitle = innPage.getElementsByTag("h1");
                         Elements subTitle = innPage.getElementsByTag("h2");
@@ -111,16 +107,15 @@ public class InnRobot extends BaseRobot {
                     }
                 }
             }
-            System.out.println("all titles of Articles text length: " + allTitlesText.length());
 
             String word = "";
             for (int i = 0; i < allTitlesText.length(); i++){
-                char chekWord = allTitlesText.charAt(i);
-                if ((chekWord > 1487 && chekWord < 1515) || chekWord == 34 || chekWord == ' ' ||
-                        (chekWord >= '0' && chekWord <= '9') || (chekWord >= 'A' && chekWord <= 'Z') || (chekWord >= 'a' && chekWord <= 'z')){
-                    if (!(chekWord == 34)) {
-                        word += chekWord;
-                        if (word.contains(text)){
+                char checkWord = allTitlesText.charAt(i);
+                if ((checkWord >= 'א' && checkWord <= 'ת') || checkWord == '"' || checkWord == ' ' ||
+                        (checkWord >= '0' && checkWord <= '9') || (checkWord >= 'A' && checkWord <= 'Z') || (checkWord >= 'a' && checkWord <= 'z')){
+                    if (!(checkWord == '"')) {
+                        word += checkWord;
+                        if (word.contains(text)) {
                             count++;
                             word = "";
                         }
@@ -144,7 +139,6 @@ public class InnRobot extends BaseRobot {
 
             int previousLength = 0;
             int currentLength;
-            int mostChars = 0;
             String linkOfLongestArticle = "";
             for (int i = 0; i < allLinks.size(); i++) {
                 StringBuilder allArticleText = new StringBuilder();
@@ -152,9 +146,9 @@ public class InnRobot extends BaseRobot {
                 String preLink = "https://www.inn.co.il/";
                 String link = linkElement.attr("href");
                 String linkToScraping = preLink + link;
-                if (i != allLinks.size()-1) {
+                if (i != allLinks.size() - 1) {
                     if (!link.equals(allLinks.get(i + 1).attr("href"))
-                            && scanLink(link) == 2 && (link.contains("/news/")) ) {
+                            && scanLink(link) == Def.SLASH_PAGE_INN && (link.contains("/news/")) ) {
                         Document innPage = Jsoup.connect(linkToScraping).get();
                         Elements textPage = innPage.getElementsByTag("p");
                         for (Element element : textPage) {
@@ -163,7 +157,6 @@ public class InnRobot extends BaseRobot {
                         currentLength = allArticleText.length();
                         if (currentLength > previousLength) {
                             linkOfLongestArticle = preLink + link;
-                            mostChars = currentLength;
                             previousLength = currentLength;
                         }
                     }
@@ -172,8 +165,6 @@ public class InnRobot extends BaseRobot {
             Document wallaPage = Jsoup.connect(linkOfLongestArticle).get();
             Elements mainTitle = wallaPage.getElementsByTag("h1");
             longestArticleTitle = mainTitle.text();
-            System.out.println("The link of the long article: " + linkOfLongestArticle);
-            System.out.println("The number of chars of the long article: " + mostChars);
 
         } catch (IOException e) {
             e.printStackTrace();

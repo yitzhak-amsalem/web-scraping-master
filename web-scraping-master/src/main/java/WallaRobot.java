@@ -20,18 +20,15 @@ public class WallaRobot extends BaseRobot {
         try {
             Document website = Jsoup.connect(getRootWebsiteUrl()).get();
             Elements allLinks = website.getElementsByAttribute("href");
-            System.out.println("all links: " + allLinks.size());
 
             StringBuilder allText = new StringBuilder();
             for (int i = 0; i < allLinks.size(); i++){
                 Element linkElement = allLinks.get(i);
                 String link = linkElement.attr("href");
-                if (i != allLinks.size()-1) {
-                    if (link.contains(".walla.co.il/") && scanLink(link) > 3
+                if (i != allLinks.size() - 1) {
+                    if (link.contains(".walla.co.il/") && scanLink(link) > Def.SLASH_PAGE_WALLA
                             && !(link.contains("pdf")) && !(link.contains("break"))  && !(link.contains("vod"))
                             && !(link.contains("fun")) && !(link.contains("viva")) ) {
-//                        System.out.println(link);
-//                        System.out.println(linkElement.text());
                         Document wallaPage = Jsoup.connect(link).get();
                         Elements mainTitle = wallaPage.getElementsByTag("h1");
                         Elements textPage = wallaPage.getElementsByTag("p");
@@ -51,34 +48,24 @@ public class WallaRobot extends BaseRobot {
                     }
                 }
             }
-//            System.out.println(allTitlesText);
-//            System.out.println("SubTitles: ");
-//            System.out.println(allSubTitlesText);
-//            System.out.println("ArticleText: ");
-//            System.out.println(allArticleText);
-//            System.out.println("all allTitlesText length: " + allTitlesText.length());
-//            System.out.println("all allTextClass length: " + allSubTitlesText.length());
-//            System.out.println("all allTextP length: " + allArticleText.length());
-//            System.out.println("size now links: " + size);
-//            System.out.println(allText.length());
 
             String word = "";
             for (int i = 0; i<allText.length(); i++){
-                char chekWord = allText.charAt(i);
-                if ((chekWord > 1487 && chekWord < 1515) || chekWord == 34 ||
-                        (chekWord >= '0' && chekWord <= '9') || (chekWord >= 'A' && chekWord <= 'Z') || (chekWord >= 'a' && chekWord <= 'z')){
-                    if (!(chekWord == 34)) {
-                        word += chekWord;
+                char checkWord = allText.charAt(i);
+                if ((checkWord >= 'א' && checkWord <= 'ת') || checkWord == '"' ||
+                        (checkWord >= '0' && checkWord <= '9') || (checkWord >= 'A' && checkWord <= 'Z') || (checkWord >= 'a' && checkWord <= 'z')){
+                    if (!(checkWord == '"')) {
+                        word += checkWord;
                     }
                 }
                 else {
-                    if (word.length() != 0) {
+                    if (word.length() != Def.MIN_WORD) {
                         if (wordsMap.get(word) != null) {
-                            Integer value = wordsMap.get(word) + 1;
+                            Integer value = wordsMap.get(word) + Def.ONE_SHOW;
                             wordsMap.put(word, value);
                         }
                         else {
-                            wordsMap.put(word, 1);
+                            wordsMap.put(word, Def.ONE_SHOW);
                         }
                     }
                     word = "";
@@ -114,8 +101,8 @@ public class WallaRobot extends BaseRobot {
             for (int i = 0; i < allLinks.size(); i++){
                 Element linkElement = allLinks.get(i);
                 String link = linkElement.attr("href");
-                if (i != allLinks.size()-1) {
-                    if (link.contains(".walla.co.il/") && !link.equals(allLinks.get(i + 1).attr("href")) && scanLink(link) > 3
+                if (i != allLinks.size() - 1) {
+                    if (link.contains(".walla.co.il/") && !link.equals(allLinks.get(i + 1).attr("href")) && scanLink(link) > Def.SLASH_PAGE_WALLA
                             && !(link.contains("pdf")) && !(link.contains("break")) && !(link.contains("pdf")) && !(link.contains("vod"))
                             && !(link.contains("fun")) && !(link.contains("viva")) ) {
                         Document wallaPage = Jsoup.connect(link).get();
@@ -132,16 +119,14 @@ public class WallaRobot extends BaseRobot {
                     }
                 }
             }
-            System.out.println("all titles of Articles text length: " + allTitlesText.length());
-
 
             String word = "";
             for (int i = 0; i < allTitlesText.length(); i++){
-                char chekWord = allTitlesText.charAt(i);
-                if ((chekWord > 1487 && chekWord < 1515) || chekWord == 34 ||
-                        (chekWord >= '0' && chekWord <= '9') || (chekWord >= 'A' && chekWord <= 'Z') || (chekWord >= 'a' && chekWord <= 'z')){
-                    if (!(chekWord == 34)) {
-                        word += chekWord;
+                char checkWord = allTitlesText.charAt(i);
+                if ((checkWord >= 'א' && checkWord <= 'ת') || checkWord == '"' || checkWord == ' ' ||
+                        (checkWord >= '0' && checkWord <= '9') || (checkWord >= 'A' && checkWord <= 'Z') || (checkWord >= 'a' && checkWord <= 'z')){
+                    if (!(checkWord == '"')) {
+                        word += checkWord;
                         if (word.contains(text)){
                             count++;
                             word = "";
@@ -166,14 +151,13 @@ public class WallaRobot extends BaseRobot {
 
             int previousLength = 0;
             int currentLength;
-            int mostChars = 0;
             String linkOfLongestArticle = "";
             for (int i = 0; i < allLinks.size(); i++) {
                 StringBuilder allText = new StringBuilder();
                 Element linkElement = allLinks.get(i);
                 String link = linkElement.attr("href");
                 if (i != allLinks.size() - 1) {
-                    if (link.contains(".walla.co.il/") && !link.equals(allLinks.get(i + 1).attr("href")) && scanLink(link) > 3
+                    if (link.contains(".walla.co.il/") && !link.equals(allLinks.get(i + 1).attr("href")) && scanLink(link) > Def.SLASH_PAGE_WALLA
                             && !(link.contains("pdf")) && !(link.contains("break")) && !(link.contains("pdf")) && !(link.contains("vod"))
                             && !(link.contains("fun")) && !(link.contains("viva"))) {
                         Document wallaPage = Jsoup.connect(link).get();
@@ -188,7 +172,6 @@ public class WallaRobot extends BaseRobot {
                         currentLength = allText.length();
                         if (currentLength > previousLength) {
                             linkOfLongestArticle = link;
-                            mostChars = currentLength;
                             previousLength = currentLength;
                         }
                     }
@@ -197,8 +180,6 @@ public class WallaRobot extends BaseRobot {
             Document wallaPage = Jsoup.connect(linkOfLongestArticle).get();
             Elements mainTitle = wallaPage.getElementsByTag("h1");
             longestArticleTitle = mainTitle.text();
-            System.out.println("The link of the long article: " + linkOfLongestArticle);
-            System.out.println("The number of chars of the long article: " + mostChars);
 
         } catch (IOException e) {
             e.printStackTrace();
