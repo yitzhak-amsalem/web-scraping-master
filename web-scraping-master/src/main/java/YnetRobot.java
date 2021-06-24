@@ -31,10 +31,10 @@ public class YnetRobot extends BaseRobot {
                         Elements mainTitle = ynetPage.getElementsByClass("mainTitle");
                         Elements subTitle = ynetPage.getElementsByClass("subTitle");
                         Elements textPage = ynetPage.getElementsByAttribute("data-text");
-                        allText.append(mainTitle.text());
-                        allText.append(subTitle.text());
+                        allText.append(mainTitle.text()).append(" ");
+                        allText.append(subTitle.text()).append(" ");
                         for (Element element : textPage) {
-                            allText.append(element.text());
+                            allText.append(element.text()).append(" ");
                         }
                     }
                 }
@@ -96,8 +96,8 @@ public class YnetRobot extends BaseRobot {
                         Document ynetPage = Jsoup.connect(link).get();
                         Elements mainTitle = ynetPage.getElementsByClass("mainTitle");
                         Elements subTitle = ynetPage.getElementsByClass("subTitle");
-                        allTitlesText.append(mainTitle.text());
-                        allTitlesText.append(subTitle.text());
+                        allTitlesText.append(mainTitle.text()).append(" ");
+                        allTitlesText.append(subTitle.text()).append(" ");
                     }
                 }
             }
@@ -143,7 +143,7 @@ public class YnetRobot extends BaseRobot {
                         Document ynetPage = Jsoup.connect(link).get();
                         Elements textPage = ynetPage.getElementsByAttribute("data-text");
                         for (Element element : textPage) {
-                            allText.append(element.text());
+                            allText.append(element.text()).append(" ");
                         }
                         currentLength = allText.length();
                         if (currentLength > previousLength) {
