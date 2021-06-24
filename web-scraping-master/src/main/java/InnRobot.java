@@ -7,16 +7,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WallaRobot extends BaseRobot {
+public class InnRobot extends BaseRobot {
 
 
-    public WallaRobot() {
-        super("https://www.walla.co.il/");
+    public InnRobot() {
+        super("https://www.inn.co.il/");
     }
-
     @Override
     public Map<String, Integer> getWordsStatistics() {
         Map<String, Integer> wordsMap = new HashMap<>();
+        int size = 0;
         try {
             Document website = Jsoup.connect(getRootWebsiteUrl()).get();
             Elements allLinks = website.getElementsByAttribute("href");
@@ -25,42 +25,26 @@ public class WallaRobot extends BaseRobot {
             StringBuilder allText = new StringBuilder();
             for (int i = 0; i < allLinks.size(); i++){
                 Element linkElement = allLinks.get(i);
+                String preLink = "https://www.inn.co.il/";
                 String link = linkElement.attr("href");
+                String linkToScraping = preLink + link;
                 if (i != allLinks.size()-1) {
-                    if (link.contains(".walla.co.il/") && scanLink(link) > 3
-                            && !(link.contains("pdf")) && !(link.contains("break"))  && !(link.contains("vod"))
-                            && !(link.contains("fun")) && !(link.contains("viva")) ) {
-//                        System.out.println(link);
-//                        System.out.println(linkElement.text());
-                        Document wallaPage = Jsoup.connect(link).get();
-                        Elements mainTitle = wallaPage.getElementsByTag("h1");
-                        Elements textPage = wallaPage.getElementsByTag("p");
+                    if (!link.equals(allLinks.get(i + 1).attr("href"))
+                            && scanLink(link) == 2 && (link.contains("/news/")) ) {
+                        Document innPage = Jsoup.connect(linkToScraping).get();
+                        Elements mainTitle = innPage.getElementsByTag("h1");
+                        Elements subTitle = innPage.getElementsByTag("h2");
+                        Elements textPage = innPage.getElementsByTag("p");
                         allText.append(mainTitle.text()).append(" ");
+                        allText.append(subTitle.text()).append(" ");
                         for (Element element : textPage) {
-                            Element containerText = element.parent().parent();
-                            String classValue = containerText.attr("class");
-                            Element containerSubTitle = element.parent();
-                            String tagName = containerSubTitle.tagName();
-                            if (tagName.equals("header")) {
-                                allText.append(element.text()).append(" ");
-                            }
-                            if (classValue.equals("css-onxvt4  ")) {
-                                allText.append(element.text()).append(" ");
-                            }
+                            allText.append(element.text()).append(" ");
                         }
                     }
                 }
             }
-//            System.out.println(allTitlesText);
-//            System.out.println("SubTitles: ");
-//            System.out.println(allSubTitlesText);
-//            System.out.println("ArticleText: ");
-//            System.out.println(allArticleText);
-//            System.out.println("all allTitlesText length: " + allTitlesText.length());
-//            System.out.println("all allTextClass length: " + allSubTitlesText.length());
-//            System.out.println("all allTextP length: " + allArticleText.length());
-//            System.out.println("size now links: " + size);
-//            System.out.println(allText.length());
+            System.out.println(allText.length());
+
 
             String word = "";
             for (int i = 0; i<allText.length(); i++){
@@ -113,32 +97,26 @@ public class WallaRobot extends BaseRobot {
 
             for (int i = 0; i < allLinks.size(); i++){
                 Element linkElement = allLinks.get(i);
+                String preLink = "https://www.inn.co.il/";
                 String link = linkElement.attr("href");
+                String linkToScraping = preLink + link;
                 if (i != allLinks.size()-1) {
-                    if (link.contains(".walla.co.il/") && !link.equals(allLinks.get(i + 1).attr("href")) && scanLink(link) > 3
-                            && !(link.contains("pdf")) && !(link.contains("break")) && !(link.contains("pdf")) && !(link.contains("vod"))
-                            && !(link.contains("fun")) && !(link.contains("viva")) ) {
-                        Document wallaPage = Jsoup.connect(link).get();
-                        Elements mainTitle = wallaPage.getElementsByTag("h1");
-                        Elements textPage = wallaPage.getElementsByTag("p");
+                    if (!link.equals(allLinks.get(i + 1).attr("href"))
+                            && scanLink(link) == 2 && (link.contains("/news/")) ) {
+                        Document innPage = Jsoup.connect(linkToScraping).get();
+                        Elements mainTitle = innPage.getElementsByTag("h1");
+                        Elements subTitle = innPage.getElementsByTag("h2");
                         allTitlesText.append(mainTitle.text()).append(" ");
-                        for (Element element : textPage) {
-                            Element containerSubTitle = element.parent();
-                            String tagName = containerSubTitle.tagName();
-                            if (tagName.equals("header")) {
-                                allTitlesText.append(element.text()).append(" ");
-                            }
-                        }
+                        allTitlesText.append(subTitle.text()).append(" ");
                     }
                 }
             }
             System.out.println("all titles of Articles text length: " + allTitlesText.length());
 
-
             String word = "";
             for (int i = 0; i < allTitlesText.length(); i++){
                 char chekWord = allTitlesText.charAt(i);
-                if ((chekWord > 1487 && chekWord < 1515) || chekWord == 34 ||
+                if ((chekWord > 1487 && chekWord < 1515) || chekWord == 34 || chekWord == ' ' ||
                         (chekWord >= '0' && chekWord <= '9') || (chekWord >= 'A' && chekWord <= 'Z') || (chekWord >= 'a' && chekWord <= 'z')){
                     if (!(chekWord == 34)) {
                         word += chekWord;
@@ -169,25 +147,22 @@ public class WallaRobot extends BaseRobot {
             int mostChars = 0;
             String linkOfLongestArticle = "";
             for (int i = 0; i < allLinks.size(); i++) {
-                StringBuilder allText = new StringBuilder();
+                StringBuilder allArticleText = new StringBuilder();
                 Element linkElement = allLinks.get(i);
+                String preLink = "https://www.inn.co.il/";
                 String link = linkElement.attr("href");
-                if (i != allLinks.size() - 1) {
-                    if (link.contains(".walla.co.il/") && !link.equals(allLinks.get(i + 1).attr("href")) && scanLink(link) > 3
-                            && !(link.contains("pdf")) && !(link.contains("break")) && !(link.contains("pdf")) && !(link.contains("vod"))
-                            && !(link.contains("fun")) && !(link.contains("viva"))) {
-                        Document wallaPage = Jsoup.connect(link).get();
-                        Elements textPage = wallaPage.getElementsByTag("p");
+                String linkToScraping = preLink + link;
+                if (i != allLinks.size()-1) {
+                    if (!link.equals(allLinks.get(i + 1).attr("href"))
+                            && scanLink(link) == 2 && (link.contains("/news/")) ) {
+                        Document innPage = Jsoup.connect(linkToScraping).get();
+                        Elements textPage = innPage.getElementsByTag("p");
                         for (Element element : textPage) {
-                            Element containerText = element.parent().parent();
-                            String classValue = containerText.attr("class");
-                            if (classValue.equals("css-onxvt4  ")) {
-                                allText.append(element.text()).append(" ");
-                            }
+                            allArticleText.append(element.text()).append(" ");
                         }
-                        currentLength = allText.length();
+                        currentLength = allArticleText.length();
                         if (currentLength > previousLength) {
-                            linkOfLongestArticle = link;
+                            linkOfLongestArticle = preLink + link;
                             mostChars = currentLength;
                             previousLength = currentLength;
                         }
