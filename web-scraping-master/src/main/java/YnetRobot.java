@@ -40,31 +40,38 @@ public class YnetRobot extends BaseRobot {
                 }
             }
 
-            String word = "";
-            for (int i = 0; i<allText.length(); i++){
-                char checkWord = allText.charAt(i);
-                if ((checkWord >= 'א' && checkWord <= 'ת') || checkWord == '"' ||
-                        (checkWord >= '0' && checkWord <= '9') || (checkWord >= 'A' && checkWord <= 'Z') || (checkWord >= 'a' && checkWord <= 'z')){
-                    if (!(checkWord == '"')) {
-                        word += checkWord;
-                    }
-                }
-                else {
-                    if (word.length() != Def.MIN_WORD) {
-                        if (wordsMap.get(word) != null) {
-                            Integer value = wordsMap.get(word) + Def.ONE_SHOW;
-                            wordsMap.put(word, value);
-                        }
-                        else {
-                            wordsMap.put(word, Def.ONE_SHOW);
-                        }
-                    }
-                    word = "";
-                }
-            }
+            wordsMap = setMap(allText);
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        return wordsMap;
+    }
+
+    public Map<String, Integer> setMap (StringBuilder allText){
+        Map<String, Integer> wordsMap = new HashMap<>();
+        String word = "";
+        for (int i = 0; i<allText.length(); i++){
+            char checkWord = allText.charAt(i);
+            if ((checkWord >= 'א' && checkWord <= 'ת') || checkWord == '"' ||
+                    (checkWord >= '0' && checkWord <= '9') || (checkWord >= 'A' && checkWord <= 'Z') || (checkWord >= 'a' && checkWord <= 'z')){
+                if (!(checkWord == '"')) {
+                    word += checkWord;
+                }
+            }
+            else {
+                if (word.length() != Def.MIN_WORD) {
+                    if (wordsMap.get(word) != null) {
+                        Integer value = wordsMap.get(word) + Def.ONE_SHOW;
+                        wordsMap.put(word, value);
+                    }
+                    else {
+                        wordsMap.put(word, Def.ONE_SHOW);
+                    }
+                }
+                word = "";
+            }
         }
         return wordsMap;
     }
@@ -101,24 +108,30 @@ public class YnetRobot extends BaseRobot {
                     }
                 }
             }
-
-            StringBuilder word = new StringBuilder();
-            for (int i = 0; i < allTitlesText.length(); i++){
-                char checkWord = allTitlesText.charAt(i);
-                if ((checkWord >= 'א' && checkWord <= 'ת') || checkWord == '"' || checkWord == ' ' ||
-                        (checkWord >= '0' && checkWord <= '9') || (checkWord >= 'A' && checkWord <= 'Z') || (checkWord >= 'a' && checkWord <= 'z')){
-                    if (!(checkWord == '"')) {
-                        word.append(checkWord);
-                        if (word.toString().contains(text)){
-                            count++;
-                            word = new StringBuilder();
-                        }
-                    }
-                }
-            }
+            count = countAppearance(allTitlesText, text);
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        return count;
+    }
+
+    public int countAppearance (StringBuilder allTitlesText, String text) {
+        int count = 0;
+        StringBuilder word = new StringBuilder();
+        for (int i = 0; i < allTitlesText.length(); i++){
+            char checkWord = allTitlesText.charAt(i);
+            if ((checkWord >= 'א' && checkWord <= 'ת') || checkWord == '"' || checkWord == ' ' ||
+                    (checkWord >= '0' && checkWord <= '9') || (checkWord >= 'A' && checkWord <= 'Z') || (checkWord >= 'a' && checkWord <= 'z')){
+                if (!(checkWord == '"')) {
+                    word.append(checkWord);
+                    if (word.toString().contains(text)){
+                        count++;
+                        word = new StringBuilder();
+                    }
+                }
+            }
         }
 
         return count;

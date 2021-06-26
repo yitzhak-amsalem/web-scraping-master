@@ -17,7 +17,11 @@ public abstract class BaseRobot {
 
     public abstract Map<String, Integer> getWordsStatistics();
 
+    public abstract Map<String, Integer> setMap(StringBuilder allText);
+
     public abstract int countInArticlesTitles(String text);
+
+    public abstract int countAppearance(StringBuilder allTitlesText, String text);
 
     public abstract String getLongestArticleTitle();
 
